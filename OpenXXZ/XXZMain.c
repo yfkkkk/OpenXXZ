@@ -16,8 +16,7 @@
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <pthread.h>
-//解码
-#include "../zlib.h"
+
 #include "../NetUtil/HttpRequest.h"
 #include "XXZGlobal.h"
 #include "../CJSON/cJSON.h"
@@ -28,6 +27,9 @@
 #define SERVER_ADDR "server.xiaoxinzi.com"
 #define SERVER_PATH "/tools/phpsample_yf.php?"
 #define PORT "80"
+
+#define true 1
+#define false 0
 
 
 /**
@@ -77,7 +79,7 @@ char* CreateReqParamsStr(XXZReqParams* params, char* text)
               + strlen("&text=") + strlen(text) + 1;
     char* str = malloc(len);
     memset(str, 0, len);
-    printf("字节数:%d\n", len);
+//    printf("字节数:%d\n", len);
     strcat(str, "key=");
     strcat(str, params->key);
     strcat(str, "&devid=");
@@ -116,7 +118,7 @@ void GetHttpResponse(int sockfd)
         }
     }
     /* 打印响应消息 */
-    printf("Received Http Response Content: \n\n%s\n", rcvBuf);
+//    printf("Received Http Response Content: \n\n%s\n", rcvBuf);
     char *out;cJSON *json;
 
     json=cJSON_Parse(rcvBuf);
@@ -367,6 +369,57 @@ void HttpTalk()
 //    }
     close(sockfd);
 }
+static void menu(void)
+{
+    char* showStr = "dffafasasfefewfwfqefqqfewfqgqgqrqwewq";
+    puts("\n");
+    puts("+=====================================================================+");
+    puts("|                                 小信子                              |");
+    puts("|                                    |                                |");
+//    printf("| State     : %-12s           | Address: %-21s |\n",
+//           showStr, showStr);
+    puts("| 功能:                              |                                |");
+    puts("| Send Message                       |                                |");
+    puts("|    例:> 你好.                      |                                |");
+    puts("+------------------------------------+                                |");
+    puts("| q  Quit                            |                                |");
+    puts("+------------------------------------+--------------------------------+");
+    printf(">>> ");
+    fflush(stdout);
+}
+
+
+static void console_main(XXZReqParams* params, HttpReq* req)
+{
+    int q = false;
+    menu();
+    while (!q)
+    {
+        char input[32];
+        if (fgets(input, sizeof(input), stdin) == NULL)
+            break;
+        switch (input[0])
+        {
+            case 's':
+                break;
+            case 'q':
+                q = true;
+                break;
+            default:
+                Talk(params, req, input);
+                printf("> ");
+        }
+    }
+}
+
+void Talk(XXZReqParams* params, HttpReq* req, char* text)
+{
+    req->params = CreateReqParamsStr(params, text);// 生成参数字符串
+    int sockfd;
+    SendHttpRequest(req, &sockfd, GET);
+    GetHttpResponse(sockfd);
+    free(req->params);
+}
 
 int main(int argc, char *argv[])
 {
@@ -375,13 +428,8 @@ int main(int argc, char *argv[])
 
     InitReqData(&req);// 初始化 request 资料
     InitReqParams(&params);// 初始化request参数结构
-    req.params = CreateReqParamsStr(&params, "你好.");// 生成参数字符串
-    //printf("%s\n", req.params);
-    //HttpTalk();
-    int sockfd;
-    SendHttpRequest(&req, &sockfd, GET);
-    GetHttpResponse(sockfd);
-    DeleteReqParamsStr(req.params);
 
+
+    console_main(&params, &req);
     return EXIT_SUCCESS;
 }

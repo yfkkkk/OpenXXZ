@@ -67,8 +67,8 @@ int tcp_connect(const char* host, const char* serv)
     hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
     hints.ai_protocol = 0;          /* Any protocol */
     hints.ai_socktype = SOCK_STREAM;
-    printf("host:%s\n", host);
-    printf("serv:%s\n", serv);
+//    printf("host:%s\n", host);
+//    printf("serv:%s\n", serv);
     if ((n = getaddrinfo(host, serv, &hints, &res)) != 0)
     {
 
@@ -107,7 +107,6 @@ int SendHttpRequest(struct HttpReq* httpReqInfo, int* sockfd, enum HttpReqMode m
 {
     int ret;
     unsigned char str1[4096];
-    socklen_t len;
     fd_set   t_set1;
 
     *sockfd = tcp_connect(httpReqInfo->srvAddr, httpReqInfo->srvPort);
@@ -135,15 +134,15 @@ int SendHttpRequest(struct HttpReq* httpReqInfo, int* sockfd, enum HttpReqMode m
         strcat(str1, "Accept-Encoding: gzip, deflate, sdch\r\n");
     strcat(str1, "\r\n");
 
-    printf("%s\n", str1);
+//    printf("%s\n", str1);
 
     ret = write(*sockfd, str1, strlen(str1));
     if (ret < 0) {
         printf("发送失败！错误代码是%d，错误信息是'%d'\n",errno, errno);//strerror(errno));
         exit(0);
     }
-    else
-        printf("消息发送成功，共发送了%d个字节！\n\n", ret);
+//    else
+//        printf("消息发送成功，共发送了%d个字节！\n\n", ret);
 
     FD_ZERO(&t_set1);
     FD_SET(*sockfd, &t_set1);

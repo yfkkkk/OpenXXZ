@@ -8,14 +8,15 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-stack-protector")
 
 SET(STAGING_DIR )
 
-## mt7688使用
-#SET(CMAKE_C_COMPILER "/home/yf/openwrt_widora/toolchain/bin/mipsel-openwrt-linux-uclibc-gcc")
-#include_directories( "./include" )
-#include_directories( "~/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/linux-ramips_mt7688/linux-3.18.29/include" )
-#include_directories( "~/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/libmad-0.15.1b" )
-#include_directories( "~/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/libid3tag-0.15.1b" )
-#include_directories( "~/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/alsa-lib-1.0.28/include" )
-#
+# mt7688使用
+SET(CMAKE_C_COMPILER "/home/yf/openwrt_widora/toolchain/bin/mipsel-openwrt-linux-uclibc-gcc")
+include_directories( "./include" )
+include_directories( "~/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/linux-ramips_mt7688/linux-3.18.29/include" )
+include_directories( "~/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/libmad-0.15.1b" )
+include_directories( "~/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/libid3tag-0.15.1b" )
+include_directories( "~/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/alsa-lib-1.0.28/include" )
+
+## 动态链接库
 #link_directories( "~/openwrt_widora/staging_dir/toolchain-mipsel_24kec+dsp_gcc-4.8-linaro_uClibc-0.9.33.2/lib/" )
 #link_directories( "~/openwrt_widora/staging_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/usr/lib/" )
 #link_libraries( mad )
@@ -31,10 +32,10 @@ link_libraries( m )
 #link_directories( "libs/mips" )
 #link_libraries( msc )
 
-#ubuntu本地
-include_directories( "/usr/local/include/re")
-include_directories( "/usr/local/include/rem")
-include_directories( "NetUtil/Sip/include" )
+##ubuntu本地
+#include_directories( "/usr/local/include/re")
+#include_directories( "/usr/local/include/rem")
+#include_directories( "NetUtil/Sip/include" )
 
 ## 开源小信子
 set(OpenXXZ_SOURCE_FILES
