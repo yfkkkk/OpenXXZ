@@ -414,11 +414,12 @@ static void console_main(XXZReqParams* params, HttpReq* req)
 
 void Talk(XXZReqParams* params, HttpReq* req, char* text)
 {
-    req->params = CreateReqParamsStr(params, text);// 生成参数字符串
     int sockfd;
+    req->params = CreateReqParamsStr(params, text);// 生成参数字符串
     SendHttpRequest(req, &sockfd, GET);
-    GetHttpResponse(sockfd);
     free(req->params);
+    GetHttpResponse(sockfd);
+
 }
 
 int main(int argc, char *argv[])
