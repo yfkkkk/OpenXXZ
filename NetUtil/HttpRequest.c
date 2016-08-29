@@ -148,5 +148,54 @@ int SendHttpRequest(struct HttpReq* httpReqInfo, int* sockfd, enum HttpReqMode m
     FD_SET(*sockfd, &t_set1);
 }
 
+char* http_trans_buf_has_patt(char *a_buf, int a_len, char *a_pat, int a_patlen) {
+    int i = 0;
+    for (; i <= (a_len - a_patlen); i++) {
+        if (a_buf[i] == a_pat[0]) {
+            if (memcmp(&a_buf[i], a_pat, a_patlen) == 0)
+                return &a_buf[i];
+        }
+    }
+    return NULL;
+}
 
+//int GetHttpResponse(int sockfd)
+//{
+//    // 读取http返回头
+//    int contentLength = 0;
+//    int p = 0;
+//    int headEndP = 0;
+//    int res = 0;
+//    int reqSize = HTTP_RES_HEAD;
+//    char headBuf[HTTP_RES_HEAD];
+//
+//    memset(headBuf, 0, HTTP_RES_HEAD);
+//
+//    //fixme 假定http头小于 HTTP_RES_HEAD
+//    while(1)
+//    {
+//        res += read(sockfd, headBuf + res, reqSize);
+//        //res += recv(sockfd, headBuf + res, reqSize, 0);
+//        printf("head收到资料：%d\n", res);
+//        if (res <= 0)// 出错了
+//            break;
+//        headEndP = http_trans_buf_has_patt(headBuf, res, "\r\n\r\n", 4);// 是否有结束标志
+//        if(headEndP != 0) {
+//            headEndP += 4;
+//            *(char*)(headEndP-1) = '\0';
+//            printf("%s", headBuf);
+//            printf("指向：%d\n", (int)headEndP - (int)headBuf);
+//            break;
+//        }
+//        else// 没找到结束标志，继续循环读取http资料
+//        {
+//            if(res < HTTP_RES_HEAD)
+//                reqSize = HTTP_RES_HEAD - res;// 缓存未满，继续读取
+//            else{
+//                printf("溢出：超出head缓存！！！");
+//                break;
+//            }
+//        }
+//    }
+//}
 

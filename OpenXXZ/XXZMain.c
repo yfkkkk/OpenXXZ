@@ -100,40 +100,253 @@ void DeleteReqParamsStr(char* params)
     free(params);
 }
 
+void ShowResponse(cJSON* json)
+{
+    cJSON* jsonP = GetJsonValue(json, "datatype");
+    printf("datatype: %s\n", jsonP->valuestring);
+    if(!strcmp(jsonP->valuestring, "text"))
+    {
+        char* text;
+        char* data;
+        jsonP = GetJsonValue(json, "text");
+        if(jsonP != NULL)
+        {
+            text = jsonP->valuestring;
+            if(text[0] != 0)
+                printf("%s\n", text);
+        }
+
+        jsonP = GetJsonValue(json, "data");
+        if(jsonP != NULL)
+        {
+            data = jsonP->valuestring;
+            printf("%s\n", data);
+        }
+    }
+    else if(!strcmp(jsonP->valuestring, "weather"))
+    {
+        char* text;
+        char* data;
+        jsonP = GetJsonValue(json, "text");
+        if(jsonP != NULL)
+        {
+            text = jsonP->valuestring;
+            if(text[0] != 0)
+                printf("%s\n", text);
+        }
+        jsonP = GetJsonValue(json, "city");
+        printf("city: %s\n", jsonP->valuestring);
+        jsonP = (GetJsonValue(json, "data")->child)->child;
+        printf("date: %s\n", jsonP->valuestring);
+        jsonP = jsonP->next;
+        printf("temperature: %s\n", jsonP->valuestring);
+        jsonP = jsonP->next;
+        printf("weather: %s\n", jsonP->valuestring);
+        jsonP = jsonP->next;
+        printf("wind: %s\n", jsonP->valuestring);
+        jsonP = jsonP->next;
+        printf("dayPictureUrl: %s\n", jsonP->valuestring);
+    }
+    else if(!strcmp(jsonP->valuestring, "news"))
+    {
+        char* text;
+        char* data;
+        jsonP = GetJsonValue(json, "text");
+        if(jsonP != NULL)
+        {
+            text = jsonP->valuestring;
+            if(text[0] != 0)
+                printf("%s\n", text);
+        }
+        jsonP = GetJsonValue(json, "data")->child;
+        while(jsonP != NULL)
+        {
+            printf("title: %s\n", jsonP->child->valuestring);
+            printf("link: %s\n", jsonP->child->next->valuestring);
+            jsonP = jsonP->next;
+        }
+//        cJSON* jsonTmpP;
+//        while(jsonP != NULL)
+//        {
+//            jsonTmpP = jsonP->child;
+//            printf("title: %s\n", jsonTmpP->valuestring);
+//            jsonTmpP = jsonTmpP->next;
+//            printf("price: %s\n", jsonTmpP->valuestring);
+//            jsonTmpP = jsonTmpP->next;
+//            printf("picurl: %s\n", jsonTmpP->valuestring);
+//            jsonTmpP = jsonTmpP->next;
+//            printf("link: %s\n", jsonTmpP->valuestring);
+//            jsonP = jsonP->next;
+//        }
+    }
+    else if(!strcmp(jsonP->valuestring, "shop"))
+    {
+        char* text;
+        char* data;
+        jsonP = GetJsonValue(json, "text");
+        if(jsonP != NULL)
+        {
+            text = jsonP->valuestring;
+            if(text[0] != 0)
+                printf("%s\n", text);
+        }
+        jsonP = GetJsonValue(json, "data")->child;
+        cJSON* jsonTmpP;
+        while(jsonP != NULL)
+        {
+            jsonTmpP = jsonP->child;
+            printf("title: %s\n", jsonTmpP->valuestring);
+            jsonTmpP = jsonTmpP->next;
+            printf("decsription: %s\n", jsonTmpP->valuestring);
+            jsonTmpP = jsonTmpP->next;
+            printf("picurl: %s\n", jsonTmpP->valuestring);
+            jsonTmpP = jsonTmpP->next;
+            printf("link: %s\n", jsonTmpP->valuestring);
+            jsonP = jsonP->next;
+        }
+    }
+    else if(!strcmp(jsonP->valuestring, "path"))
+    {
+        char* text;
+        char* data;
+        jsonP = GetJsonValue(json, "text");
+        if(jsonP != NULL)
+        {
+            text = jsonP->valuestring;
+            if(text[0] != 0)
+                printf("%s\n", text);
+        }
+        jsonP = GetJsonValue(json, "data")->child;
+        cJSON* jsonTmpP;
+        while(jsonP != NULL)
+        {
+            jsonTmpP = jsonP->child;
+            printf("title: %s\n", jsonTmpP->valuestring);
+            jsonP = jsonP->next;
+        }
+    }
+    else if(!strcmp(jsonP->valuestring, "phone"))
+    {
+        char* text;
+        char* data;
+        jsonP = GetJsonValue(json, "text");
+        if(jsonP != NULL)
+        {
+            text = jsonP->valuestring;
+            if(text[0] != 0)
+                printf("%s\n", text);
+        }
+
+        jsonP = GetJsonValue(json, "data");
+        if(jsonP != NULL)
+        {
+            data = jsonP->valuestring;
+            printf("%s\n", data);
+        }
+    }
+    else if(!strcmp(jsonP->valuestring, "music"))
+    {
+        char* text;
+        char* data;
+        jsonP = GetJsonValue(json, "text");
+        if(jsonP != NULL)
+        {
+            text = jsonP->valuestring;
+            if(text[0] != 0)
+                printf("%s\n", text);
+        }
+        jsonP = GetJsonValue(json, "data")->child;
+        cJSON* jsonTmpP;
+        while(jsonP != NULL)
+        {
+            jsonTmpP = jsonP->child;
+            printf("title: %s\n", jsonTmpP->valuestring);
+            jsonTmpP = jsonTmpP->next;
+            printf("artistName: %s\n", jsonTmpP->valuestring);
+            jsonTmpP = jsonTmpP->next;
+            printf("link: %s\n", jsonTmpP->valuestring);
+            jsonTmpP = jsonTmpP->next;
+            printf("picurl: %s\n", jsonTmpP->valuestring);
+            jsonP = jsonP->next;
+        }
+    }
+    else if(!strcmp(jsonP->valuestring, "webShop"))
+    {
+        char* text;
+        char* data;
+        jsonP = GetJsonValue(json, "text");
+        if(jsonP != NULL)
+        {
+            text = jsonP->valuestring;
+            if(text[0] != 0)
+                printf("%s\n", text);
+        }
+        jsonP = GetJsonValue(json, "data")->child;
+        cJSON* jsonTmpP;
+        while(jsonP != NULL)
+        {
+            jsonTmpP = jsonP->child;
+            printf("title: %s\n", jsonTmpP->valuestring);
+            jsonTmpP = jsonTmpP->next;
+            printf("link: %s\n", jsonTmpP->valuestring);
+            jsonTmpP = jsonTmpP->next;
+            printf("picurl: %s\n", jsonTmpP->valuestring);
+            jsonP = jsonP->next;
+        }
+    }
+    else
+    {
+        char* text;
+        char* data;
+        jsonP = GetJsonValue(json, "text");
+        if(jsonP != NULL)
+        {
+            text = jsonP->valuestring;
+            if(text[0] != 0)
+                printf("%s\n", text);
+        }
+
+        jsonP = GetJsonValue(json, "data");
+        if(jsonP != NULL)
+        {
+            data = jsonP->valuestring;
+            printf("%s\n", data);
+        }
+    }
+}
 
 void GetHttpResponse(int sockfd)
 {
     /* 接收HTTP响应消息 */
     int num = 0;
-    char        rcvBuf[4096] = {0};
+    char        rcvBuf[40960] = {0};
     char       *pRcv         = rcvBuf;
     while(1)
     {
-        num = recv(sockfd, pRcv, 4096, 0);
+        num = recv(sockfd, pRcv, 40960, 0);
         pRcv += num;
 
         if((0 == num) || (-1 == num))
         {
-            break ;
+            break;
         }
     }
     /* 打印响应消息 */
-//    printf("Received Http Response Content: \n\n%s\n", rcvBuf);
+    printf("Received Http Response Content: \n\n%s\n", rcvBuf);
     char *out;cJSON *json;
 
-    json=cJSON_Parse(rcvBuf);
+    json = cJSON_Parse(rcvBuf);
     if (!json)
     {
         printf("Error before: [%s]\n",cJSON_GetErrorPtr());
     }
     else
     {
-        int i = cJSON_GetArraySize(json);
-        cJSON* jsonTemp = GetJsonValue(json, "data");
-        // 打印json对象
-        char* out2 = cJSON_Print(jsonTemp);
-        printf("%s\n",out2);
-        free(out2);
+        ShowResponse(json);
+//        // 打印json对象
+//        char* out2 = cJSON_Print(jsonTemp);
+//        printf("%s\n",out2);
+//        free(out2);
         cJSON_Delete(json);
     }
 }
@@ -419,7 +632,6 @@ void Talk(XXZReqParams* params, HttpReq* req, char* text)
     SendHttpRequest(req, &sockfd, GET);
     free(req->params);
     GetHttpResponse(sockfd);
-
 }
 
 int main(int argc, char *argv[])

@@ -45,3 +45,5 @@ void InitHttpReqStruct(struct HttpReq* req);
 int SendHttpRequest(struct HttpReq* httpReqInfo, int* sockfd, enum HttpReqMode mode);
 
 int tcp_connect(const char* host, const char* serv);
+
+//int GetHttpResponse(int sockfd);

@@ -14,26 +14,16 @@
     <orderEntry type="module-library">
       <library name="Header Search Paths">
         <CLASSES>
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
           <root url="file:///usr/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/linux-ramips_mt7688/linux-3.18.29/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/alsa-lib-1.0.28/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/libid3tag-0.15.1b" />
-          <root url="file://$USER_HOME$/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/libmad-0.15.1b" />
-          <root url="file://$USER_HOME$/openwrt_widora/toolchain/lib/gcc/mipsel-openwrt-linux-uclibc/4.8.3/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/toolchain/lib/gcc/mipsel-openwrt-linux-uclibc/4.8.3/include-fixed" />
-          <root url="file://$USER_HOME$/openwrt_widora/toolchain/mipsel-openwrt-linux-uclibc/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/toolchain/mipsel-openwrt-linux-uclibc/sys-include" />
+          <root url="file:///usr/local/include" />
         </CLASSES>
         <SOURCES>
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
           <root url="file:///usr/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/linux-ramips_mt7688/linux-3.18.29/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/alsa-lib-1.0.28/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/libid3tag-0.15.1b" />
-          <root url="file://$USER_HOME$/openwrt_widora/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/libmad-0.15.1b" />
-          <root url="file://$USER_HOME$/openwrt_widora/toolchain/lib/gcc/mipsel-openwrt-linux-uclibc/4.8.3/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/toolchain/lib/gcc/mipsel-openwrt-linux-uclibc/4.8.3/include-fixed" />
-          <root url="file://$USER_HOME$/openwrt_widora/toolchain/mipsel-openwrt-linux-uclibc/include" />
-          <root url="file://$USER_HOME$/openwrt_widora/toolchain/mipsel-openwrt-linux-uclibc/sys-include" />
+          <root url="file:///usr/local/include" />
         </SOURCES>
       </library>
     </orderEntry>

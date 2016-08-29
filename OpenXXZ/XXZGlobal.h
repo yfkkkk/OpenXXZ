@@ -15,4 +15,15 @@ typedef struct XXZReqParams
     char* text;
 }XXZReqParams;
 
+enum ResDataType
+{
+    text = 1,
+    weather = 2,
+    news = 3,
+    shop = 4,
+    path = 5,
+    phone = 6,
+    music = 7,
+    webShop = 8
+};
 #endif //TEST_XXZGLOBAL_H
