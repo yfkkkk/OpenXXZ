@@ -21,6 +21,9 @@
 #include "XXZGlobal.h"
 #include "../CJSON/cJSON.h"
 
+#include "../SoundUtils/SoundUtils.h"
+#include "../Debug/Debug.h"
+
 
 #define BUFSIZE 4096
 #define HTTP_RES_HEAD 1024
@@ -31,7 +34,12 @@
 #define true 1
 #define false 0
 
-
+/////////////////////////////////////
+// 外部引入接口
+/////////////////////////////////////
+extern struct SoundCtrl G_sndC;
+extern void RecordDeviceInit();
+extern void Record();
 /**
  * request 参数集合
  * @param req
@@ -623,6 +631,53 @@ static void console_main(XXZReqParams* params, HttpReq* req)
                 printf("> ");
         }
     }
+}
+
+int iflyLogin()
+{
+    /* 用户登录 */
+    ret = MSPLogin(NULL, NULL, login_params); //第一个参数是用户名，第二个参数是密码，均传NULL即可，第三个参数是登录参数
+    if (MSP_SUCCESS != ret)
+    {
+        printf("讯飞登录失败，即将登出，错误码：%d.\n", ret);
+        MSPLogout();
+        return -1; //登录失败，退出登录
+    }
+    printf("成功登录讯飞\n");
+    return 0;//正确返回
+}
+
+int init()
+{
+    //登录讯飞
+    if (iflyLogin())
+    {
+        return -1;
+    }
+    //初始化音频设备
+    audioRecordDeviceInit();
+    //playDeviceInit();
+    return 0;
+}
+
+int Rec()
+{
+    //登录讯飞
+    if (iflyLogin())
+    {
+        return -1;
+    }
+    G_sndC.onRecord = 1;
+    RecordDeviceInit();
+    int thrRes;//创建的线程返回值
+    thrRes = pthread_create(&G_sndC.recordThread, NULL, Record, NULL);
+    if (thrRes != 0)
+    {
+        _error("————Thread creation failed!");
+        exit(EXIT_FAILURE);
+    }
+
+    return 0;
 }
 
 void Talk(XXZReqParams* params, HttpReq* req, char* text)
