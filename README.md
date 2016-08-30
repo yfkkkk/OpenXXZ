@@ -10,6 +10,7 @@
   1， 运行-》通过麦克风输入语音
   
   2， 注意:请自备讯飞库, 放到widora的/lib目录下
+  
   官网：www.xiaoxinzi.com
 
 ## 许可证 GPL
