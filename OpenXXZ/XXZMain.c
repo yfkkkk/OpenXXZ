@@ -403,28 +403,6 @@ static void console_main(XXZReqParams* params, HttpReq* req)
     }
 }
 
-
-
-int Rec()
-{
-    //登录讯飞
-    if (iflyLogin())
-    {
-        return -1;
-    }
-    G_sndC.onRecord = 1;
-    RecordDeviceInit();
-    int thrRes;//创建的线程返回值
-    thrRes = pthread_create(&G_sndC.recordThread, NULL, Record, NULL);
-    if (thrRes != 0)
-    {
-        _error("————Thread creation failed!");
-        exit(EXIT_FAILURE);
-    }
-
-    return 0;
-}
-
 /**
  * 文本小信子
  * @param params
