@@ -40,7 +40,7 @@ extern struct SoundCtrl G_sndC;
 extern void RecordDeviceInit();
 extern void Record();
 extern int iflyLogin();
-extern void RecognizeVoice_Ifly();
+extern void RecognizeVoice_Ifly(char* recgResult);
 
 /**
  * request 参数集合
@@ -425,6 +425,12 @@ int Rec()
     return 0;
 }
 
+/**
+ * 文本小信子
+ * @param params
+ * @param req
+ * @param text
+ */
 void Talk(XXZReqParams* params, HttpReq* req, char* text)
 {
     int sockfd;
@@ -436,11 +442,14 @@ void Talk(XXZReqParams* params, HttpReq* req, char* text)
 
 int main(int argc, char *argv[])
 {
-//    XXZReqParams params;
-//    HttpReq req;
-//
-//    InitReqData(&req);// 初始化 request 资料
-//    InitReqParams(&params);// 初始化request参数结构
+
+    char iat_rec_result[4096] = {0};
+
+    XXZReqParams params;
+    HttpReq req;
+
+    InitReqData(&req);// 初始化 request 资料
+    InitReqParams(&params);// 初始化request参数结构
 //
 //
 //    console_main(&params, &req);
@@ -453,6 +462,8 @@ int main(int argc, char *argv[])
         _error("Thread creation failed!");
         exit(EXIT_FAILURE);
     }
-    RecognizeVoice_Ifly();
+    RecognizeVoice_Ifly(iat_rec_result);
+
+    Talk(&params, &req, iat_rec_result);
     return EXIT_SUCCESS;
 }

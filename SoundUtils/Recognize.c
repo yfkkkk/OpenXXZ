@@ -42,7 +42,7 @@ int iflyLogin()
 /**
  * @brief 功能：讯飞语音识别
  */
-extern void RecognizeVoice_Ifly()
+extern void RecognizeVoice_Ifly(char* recgResult)
 {
     const char *session_id = NULL;
 
@@ -114,7 +114,6 @@ extern void RecognizeVoice_Ifly()
     }
 
     // 取结果
-    char iat_rec_result[4096] = {0};
     sysUsecTime();
     errcode = QISRAudioWrite(session_id, NULL, 0, MSP_AUDIO_SAMPLE_LAST, &ep_stat, &rec_stat);
     if (MSP_SUCCESS != errcode)
@@ -140,13 +139,13 @@ extern void RecognizeVoice_Ifly()
                 printf("\nno enough buffer for rec_result !\n");
                 return;
             }
-            strncat(iat_rec_result, rslt, rslt_len);
+            strncat(recgResult, rslt, rslt_len);
         }
         //usleep(150 * 1000); //防止频繁占用CPU
     }
     printf("\n语音听写结束\n");
     printf("=============================================================\n");
-    printf("%s\n", iat_rec_result);
+    printf("%s\n", recgResult);
     printf("=============================================================\n");
     sysUsecTime();
     iat_exit:
