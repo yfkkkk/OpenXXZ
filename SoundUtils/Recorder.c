@@ -188,7 +188,7 @@ extern void RecordDeviceInit()
     }
     _printf("周期长度：%d, dir：%d\n", G_sndC.recPerPeriodFrames, dir);
     int wait;
-    _printf("等待录音设备启动。。。\n");
+    printf("等待录音设备启动。。。\n");
     usleep(2000 * 1000);//设备开启后，等待2秒，bias电平
     _printf("启动完毕\n");
     // 计算语音采样缓存
