@@ -13,7 +13,7 @@ static int _error(char *fmt, ...)
 }
 #endif // !_error
 
-#define _printf printf
+//#define _printf printf
 #ifndef _printf
 static int _printf(char *fmt, ...)
 {
