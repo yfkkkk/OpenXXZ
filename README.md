@@ -7,7 +7,13 @@
 
 操作方法：
 
-  1， 运行-》通过麦克风输入语音
+    1, 运行-》通过麦克风输入语音
+  
+注意: 
+
+    1, 把Libs/mips中讯飞库放到widora  /lib目录
+    
+    2, 如果要支持同时播放录音, 把SoundCardDriver下内核模块放到widora   /lib/modules/3.18.29/目录
   
   官网：www.xiaoxinzi.com
 
