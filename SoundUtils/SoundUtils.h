@@ -67,6 +67,6 @@ struct SoundCtrl
     char onKillAllThread;    //杀所有线程标志
 };
 
-
+extern struct SoundCtrl G_sndC;
 
 #endif //TEST_SOUNDUTILS_H

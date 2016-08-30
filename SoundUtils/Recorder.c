@@ -13,6 +13,7 @@
 /////////////////////////////////////
 extern void sysUsecTime();//引用
 
+
 /////////////////////////////////////
 // 结构初始化
 /////////////////////////////////////
@@ -78,11 +79,6 @@ extern struct SoundCtrl G_sndC = {
         0,
         0
 };
-
-
-
-
-
 // 处理并复制双声道资料到单声道pcm缓存
 // 注意：frames是帧数不是字节数
 void CopyStereoToMonoPcmBuf(char* des, char* src, int frames)
@@ -216,7 +212,7 @@ extern void Record()
     int len = G_sndC.totalRecFramesCount; //录音采样点总数
     int err = 0;
     //char* rxBuf = malloc(G_sndC.pcmBufSize * 2);//接收语音资料，比最终缓存多一倍，用来存储双声道
-    char* rxBuf = malloc(G_sndC.perPeriodBytes * 2);
+    char *rxBuf = malloc(G_sndC.perPeriodBytes * 2);
     int rxBufEnd = 0;
     int switcher = 0;//缓存切换用
 
@@ -234,7 +230,7 @@ extern void Record()
         G_sndC.pcmEnd = 0;
         rxBufEnd = 0;
         //打开文件
-        FILE* fp = fopen("test.wav", "w+");
+        FILE *fp = fopen("test.wav", "w+");
         fwrite(&capture_wav_hdr, 1, sizeof(capture_wav_hdr), fp); //如果要存成wav档，则写入文件头
         //memset(G_sndC.pcmBuf, 0, G_sndC.pcmBufSize);
         //memset(rxBuf, 0, G_sndC.pcmBufSize);
@@ -248,18 +244,18 @@ extern void Record()
             do
             {
                 err = snd_pcm_readi(G_sndC.recordHwHandle, rxBuf + rxBufEnd, leftFrames);  //一次读取一个period
-                if(err > 0)
+                if (err > 0)
                 {
                     rxBufEnd += err * capture_wav_hdr.block_align * 2;//取得原始资料是双声道的
                     leftFrames -= err;
                 }
 //                if(leftFrames != 0)
 //                    printf("leftFrames:%d\n", leftFrames);
-            }while(leftFrames > 0);//读完整个period跳出
+            } while (leftFrames > 0);//读完整个period跳出
             len -= G_sndC.recPerPeriodFrames;
 
             //是否会超当前pcm缓存
-            if(G_sndC.pcmBufSize < G_sndC.pcmEnd + G_sndC.perPeriodBytes)
+            if (G_sndC.pcmBufSize < G_sndC.pcmEnd + G_sndC.perPeriodBytes)
             {
                 _printf("切换缓存。\n");
                 int needFrames = (G_sndC.pcmBufSize - G_sndC.pcmEnd) / capture_wav_hdr.block_align;//还可写入的frame数
@@ -274,19 +270,22 @@ extern void Record()
                 //切换缓存
                 G_sndC.pcmEnd = 0;
                 switcher = !switcher;
+                _printf("缓存地址: %x\n", G_sndC.pcmBuf[switcher]);
                 //buf被在使用中。或者资料未被取用。等待解锁
-                while(G_sndC.onPcmBufState[switcher] != BufState_Empty){
+                while (G_sndC.onPcmBufState[switcher] != BufState_Empty)
+                {
                     _printf("等待缓存空闲。。。%d\n", switcher);
                     usleep(200 * 1000);//等待200毫秒
                 }
-                CopyStereoToMonoPcmBuf(G_sndC.pcmBuf[switcher], rxBuf + rxBufEnd, G_sndC.recPerPeriodFrames - needFrames);//复制剩余
+                CopyStereoToMonoPcmBuf(G_sndC.pcmBuf[switcher], rxBuf + rxBufEnd,
+                                       G_sndC.recPerPeriodFrames - needFrames);//复制剩余
                 G_sndC.pcmEnd += (G_sndC.recPerPeriodFrames - needFrames) * capture_wav_hdr.block_align;
                 //存入文件
                 bytesWriteToFile = (G_sndC.recPerPeriodFrames - needFrames) * capture_wav_hdr.block_align;
                 fwrite(G_sndC.pcmBuf[switcher], 1, bytesWriteToFile, fp);
                 totalFileDataBytes += bytesWriteToFile;
-            }
-            else {
+            } else
+            {
                 //取得资料转为单声道
                 CopyStereoToMonoPcmBuf(G_sndC.pcmBuf[switcher] + G_sndC.pcmEnd, rxBuf, G_sndC.recPerPeriodFrames);
                 //存入文件
@@ -297,7 +296,8 @@ extern void Record()
                 _printf("      写入文件单声道的字节数：%d\n", G_sndC.perPeriodBytes);
             }
             // 录音时间用完没？
-            if(len <= 0) {
+            if (len <= 0)
+            {
                 _printf("本次录音时间用完，退出录音模式。\n");
                 sysUsecTime();
                 G_sndC.onRecord = 0;
@@ -329,8 +329,7 @@ extern void Record()
                         {
                             _printf("还在识别再等一会\n");
                             continue;   //如果还在识别，再等一个循环
-                        }
-                        else
+                        } else
                         {
                             _printf("开始下次录音\n");
                             //恢复录音
@@ -338,8 +337,7 @@ extern void Record()
                                 _printf("%s", snd_strerror(err));
                             goto nextRec;  //重新开始录音
                         }
-                    }
-                    else
+                    } else
                         _printf(">>>>>>>录音暂停中。。。\n");
                 }
             }
@@ -360,7 +358,6 @@ extern void Record()
         nextRec:
         times++;
     }
-
 
 
     exitRecord:
