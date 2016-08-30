@@ -39,6 +39,67 @@ int iflyLogin()
     return 0;//正确返回
 }
 
+
+int IfSilence(char* pcmBuf, char meetSpeech)
+{
+    char windNoise[1024] = {0};
+    int windNoiseP = 0;
+    ///////////////////////////////////////////
+    /// 判断采样是否发送去识别，是否终止录音
+    /// 95%采样在静音阀值以下，定义为静音
+    short* samples = pcmBuf;
+    int sampleCnt = 0;
+    int lowCnt = 0;
+    int maxSample = 0;
+
+    while(sampleCnt < 10 * FRAME_LEN / 2)
+    {
+        if(abs(samples[sampleCnt]) > maxSample)
+            maxSample = abs(samples[sampleCnt]);
+        if(abs(samples[sampleCnt]) < 500)
+        {
+            lowCnt++;
+        }
+        sampleCnt++;
+    }
+    printf("最大音量：%d\n", maxSample);
+    //静音统计
+    printf("  静音采样：%d，总采样：%d\n", lowCnt, sampleCnt);
+    printf("  静音数组%s\n", windNoise);
+    printf("  静音数组指针%d\n", windNoiseP);
+    if(lowCnt * 100 / sampleCnt < 95)//非静音
+    {
+        printf("    非静音\n");
+        windNoise[windNoiseP] = '1';
+        windNoiseP++;
+        meetSpeech = 1;
+    }
+    else//当前音频片段是静音
+    {
+        printf("    静音\n");
+        windNoise[windNoiseP] = '0';
+        windNoiseP++;
+        //前面3段都是静音，后面的静音都不发送识别
+        if(windNoiseP > 3 && windNoise[windNoiseP - 1] == '0' && windNoise[windNoiseP - 2] == '0' && windNoise[windNoiseP - 3] == '0')
+        {
+            if(meetSpeech)
+            {
+                //已经有碰到语音，那么终止录音，开始回答
+                G_sndC.onRecord = 0;//停止录音
+
+                printf("静音过久，终止录音。\n");
+            }
+            else//前面全部是静音，那么不发送给识别
+            {
+                printf("不发送识别!\n");
+                return -1;
+            }
+        }
+    }
+    printf("发送识别!\n");
+    return 0;
+}
+
 /**
  * @brief 功能：讯飞语音识别
  */
@@ -53,15 +114,8 @@ extern void RecognizeVoice_Ifly(char* recgResult)
     int rec_stat = MSP_REC_STATUS_SUCCESS;            //识别状态
     int errcode = MSP_SUCCESS;
 
-    FILE *f_pcm = NULL;
-    char *p_pcm = NULL;
-    long pcm_count = 0;
-    long pcm_size = 0;
-    long read_size = 0;
+    char meetSpeech = 0;// 标志, 判断是否发送识别时, 确定碰到过语音
 
-    char windNoise[1024] = {0};
-    int windNoiseP = 0;
-    char meetSpeech = 0;
     sysUsecTime();
     iflyLogin();
     printf("\n开始语音听写 ...\n");
@@ -72,7 +126,6 @@ extern void RecognizeVoice_Ifly(char* recgResult)
         goto iat_exit;
     }
     int switcher = 0;// 缓存切换用
-    int t = 0;
     while (1)
     {
         if (G_sndC.onPcmBufState[switcher] == BufState_Full)
@@ -81,30 +134,37 @@ extern void RecognizeVoice_Ifly(char* recgResult)
             G_sndC.onPcmBufState[switcher] = BufState_Locked;// 锁定
             ////////////////////////////////////////////
             // 读缓存并处理
-            printf("发送识别!\n");
-            ret = QISRAudioWrite(session_id, G_sndC.pcmBuf[switcher], G_sndC.pcmBufSize, aud_stat, &ep_stat,
-                                 &rec_stat);
-            if (MSP_SUCCESS != ret)
+            if(IfSilence(G_sndC.pcmBuf[switcher], meetSpeech))// 是否静音
             {
-                printf("\nQISRAudioWrite failed! error code:%d\n", ret);
-                goto iat_exit;
-            }
-            if (MSP_EP_AFTER_SPEECH == ep_stat)
-                break;
-            ////////////////////////////////////////////
-            G_sndC.onPcmBufState[switcher] = BufState_Empty;// 读完，置空标志
-            switcher = !switcher;
-            _printf("————切换到缓存%d\n", switcher);
-            t++;
-            if (t >= 3)
-            {
-                _printf("————要终止录音了！\n");
-                G_sndC.onRecord = 0;
-                //G_sndC.onKillAllThread = 1;
+                G_sndC.onPcmBufState[switcher] = BufState_Empty;// 读完，置空标志
                 break;
             } else
             {
-                _printf("————  次数：%d\n", t);
+                printf("发送识别!\n");
+                ret = QISRAudioWrite(session_id, G_sndC.pcmBuf[switcher], G_sndC.pcmBufSize, aud_stat, &ep_stat,
+                                     &rec_stat);
+                if (MSP_SUCCESS != ret)
+                {
+                    printf("\nQISRAudioWrite failed! error code:%d\n", ret);
+                    goto iat_exit;
+                }
+                if (MSP_EP_AFTER_SPEECH == ep_stat)
+                    break;
+                ////////////////////////////////////////////
+                G_sndC.onPcmBufState[switcher] = BufState_Empty;// 读完，置空标志
+                switcher = !switcher;
+                _printf("————切换到缓存%d\n", switcher);
+//                t++;
+//                if (t >= 3)
+//                {
+//                    _printf("————要终止录音了！\n");
+//                    G_sndC.onRecord = 0;
+//                    //G_sndC.onKillAllThread = 1;
+//                    break;
+//                } else
+//                {
+//                    _printf("————  次数：%d\n", t);
+//                }
             }
         } else
         {
