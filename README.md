@@ -18,7 +18,7 @@
   > 没有错误，进度到100%即编译完成：
   ![image](https://github.com/yfkkkk/OpenXXZ/raw/master/snapshot/build.png)
   
-  ### 3. 运行：
+### 3. 运行：
   
   > ①会看到
   ![image](https://github.com/yfkkkk/OpenXXZ/raw/master/snapshot/等待.png)
@@ -29,7 +29,7 @@
   > ③录音时会自动判断是否有效语音，最后显示回答语句。
   ![image](https://github.com/yfkkkk/OpenXXZ/raw/master/snapshot/回复.png)
   
-  ### 4. 源码目录：
+### 4. 源码目录：
   - OpenXXZ
       - App
           - OpenXXZ //编译完成的二进制文件
