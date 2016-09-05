@@ -32,12 +32,14 @@
 enum HttpReqMode
 {
     POST,
-    GET,
-    XXZ,    //小信子api
-    XMLY    //喜马拉雅api
+    GET
 };
 
-
+enum APIFunc
+{
+    GET_UK,
+    UNDSTAND
+};
 
 
 void InitHttpReqStruct(struct HttpReq* req);

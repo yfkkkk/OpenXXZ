@@ -7,8 +7,11 @@
 
 typedef struct XXZReqParams
 {
-    char* key;
+    char* appid;
+    char* ak;
+    char* token;
     char* devid;
+    char* uk;
     char* user;
     char* nickname;
     char* city;

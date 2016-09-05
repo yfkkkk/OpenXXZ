@@ -28,8 +28,8 @@
 #define HTTP_RES_HEAD 1024
 #define SERVER_GET_UK "get.xiaoxinzi.com"
 #define SERVER_GET_UK_PATH "/app_event.php"
-#define SERVER_ADDR "ai.xiaoxinzi.com" //"server.xiaoxinzi.com"
-#define SERVER_PATH "/api3.php" //"/tools/phpsample_yf.php?"
+#define SERVER_UNDSTAND "ai.xiaoxinzi.com" //"server.xiaoxinzi.com"
+#define SERVER_UNDSTAND_PATH "/api3.php" //"/tools/phpsample_yf.php?"
 #define PORT "80"
 
 #define true 1
@@ -48,10 +48,17 @@ extern void RecognizeVoice_Ifly(char* recgResult);
  * request 参数集合
  * @param req
  */
-void InitReqData(struct HttpReq* req)
+void InitReqData(struct HttpReq* req, enum APIFunc apiFunc)
 {
-    req->srvAddr = SERVER_ADDR;
-    req->srvPath = SERVER_PATH;
+    if(apiFunc == GET_UK)
+    {
+        req->srvAddr = SERVER_GET_UK;
+        req->srvPath = SERVER_GET_UK_PATH;
+    } else if(apiFunc == UNDSTAND)
+    {
+        req->srvAddr = SERVER_UNDSTAND;
+        req->srvPath = SERVER_UNDSTAND_PATH;
+    }
     req->srvPort = PORT;
     req->params = NULL;
     req->sig = NULL;
@@ -64,8 +71,10 @@ void InitReqData(struct HttpReq* req)
  */
 void InitReqParams(XXZReqParams* params)
 {
-    params->key = "ad9HEIZkblaU9rrmsdt0X0cq";
-    params->devid = "or42Zszbf3h0iVk85LzwZyBGo9zs";
+    params->appid = "dcXbXX0X";
+    params->ak = "5c011b2726e0adb52f98d6a57672774314c540a0";
+    params->token = "f9e79b0d9144b9b47f3072359c0dfa75926a5013";
+    params->devid = "UniqueDeviceID";
     params->user = "100012";
     params->nickname = "小杨";
     params->city = "厦门";
@@ -81,30 +90,53 @@ void InitReqParams(XXZReqParams* params)
  * @param text 对话内容
  * @return 生成的参数字符串
  */
-char* CreateReqParamsStr(XXZReqParams* params, char* text)
+char* CreateReqParamsStr(XXZReqParams* params, char* text, enum APIFunc apiFunc)
 {
-    int len = strlen("key=") + strlen(params->key)
-              + strlen("&devid=") + strlen(params->devid)
-              + strlen("&user=") + strlen(params->user)
-              + strlen("&nickname=") + strlen(params->nickname)
-              + strlen("&city=") + strlen(params->city)
-              + strlen("&text=") + strlen(text) + 1;
-    char* str = malloc(len);
-    memset(str, 0, len);
+    if(apiFunc == GET_UK)
+    {
+        int len = strlen("secret=") + strlen(params->appid) + 1
+                  + strlen(params->ak) + 1
+                  + strlen(params->token)
+                  + strlen("&event=GetUk")
+                  + strlen("&data=") + strlen(params->user) + 2 + 2 + 1;// [\"  \"]
+        char* str = malloc(len);
+        memset(str, 0, len);
 //    printf("字节数:%d\n", len);
-    strcat(str, "key=");
-    strcat(str, params->key);
-    strcat(str, "&devid=");
-    strcat(str, params->devid);
-    strcat(str, "&user=");
-    strcat(str, params->user);
-    strcat(str, "&nickname=");
-    strcat(str, params->nickname);
-    strcat(str, "&city=");
-    strcat(str, params->city);
-    strcat(str, "&text=");
-    strcat(str, text);
-    return str;
+        strcat(str, "secret=");
+        strcat(str, params->appid);
+        strcat(str, "|");
+        strcat(str, params->ak);
+        strcat(str, "|");
+        strcat(str, params->token);
+        strcat(str, "&event=GetUk");
+        strcat(str, "&data=[\"");
+        strcat(str, params->devid);
+        strcat(str, "\"]");
+        return str;
+    } else if(apiFunc == UNDSTAND)
+    {
+        if(params->uk == NULL)
+        {
+            _error("uk 不存在, 请先获取uk\n");
+            return NULL;
+        }
+        int len = strlen("app=") + strlen(params->appid)
+                  + strlen("&dev=") + strlen(params->devid)
+                  + strlen("&uk=") + strlen(params->uk)
+                  + strlen("&text=") + strlen(text) + 1;
+        char* str = malloc(len);
+        memset(str, 0, len);
+    //    printf("字节数:%d\n", len);
+        strcat(str, "app=");
+        strcat(str, params->appid);
+        strcat(str, "&dev=");
+        strcat(str, params->devid);
+        strcat(str, "&uk=");
+        strcat(str, params->uk);
+        strcat(str, "&text=");
+        strcat(str, text);
+        return str;
+    }
 }
 
 void DeleteReqParamsStr(char* params)
@@ -327,7 +359,7 @@ void ShowResponse(cJSON* json)
     }
 }
 
-void GetHttpResponse(int sockfd)
+cJSON* GetHttpResponse(int sockfd)
 {
     /* 接收HTTP响应消息 */
     int num = 0;
@@ -344,7 +376,7 @@ void GetHttpResponse(int sockfd)
         }
     }
     /* 打印响应消息 */
-    printf("Received Http Response Content: \n\n%s\n", rcvBuf);
+    //printf("Received Http Response Content: \n\n%s\n", rcvBuf);
     int i = 0;
     char* dataP = 0;// 指向资料位置
     while(rcvBuf[i] != 0)
@@ -363,19 +395,7 @@ void GetHttpResponse(int sockfd)
     char *out;cJSON *json;
 
     json = cJSON_Parse(dataP);
-    if (!json)
-    {
-        printf("Error before: [%s]\n",cJSON_GetErrorPtr());
-    }
-    else
-    {
-        //ShowResponse(json);
-        // 打印json对象
-        char* out2 = cJSON_Print(json);
-        printf("%s\n",out2);
-        free(out2);
-        cJSON_Delete(json);
-    }
+    return json;
 }
 
 static void menu(void)
@@ -389,6 +409,7 @@ static void menu(void)
     puts("| 功能:                              |                                |");
     puts("| Send Message                       |                                |");
     puts("|    例:> 你好.                      |                                |");
+    puts("| u  GetUK                           |                                |");
     puts("+------------------------------------+                                |");
     puts("| q  Quit                            |                                |");
     puts("+------------------------------------+--------------------------------+");
@@ -408,7 +429,9 @@ static void console_main(XXZReqParams* params, HttpReq* req)
             break;
         switch (input[0])
         {
-            case 's':
+            case 'u':
+                GetUK(params, req);
+                printf("> ");
                 break;
             case 'q':
                 q = true;
@@ -429,11 +452,52 @@ static void console_main(XXZReqParams* params, HttpReq* req)
 void Talk(XXZReqParams* params, HttpReq* req, char* text)
 {
     int sockfd;
-    //req->params = CreateReqParamsStr(params, text);// 生成参数字符串
-    req->params = "app=KF5hzAiS&dev=123312312312&uk=df6f0dbf81c31accfda1f3cc3a1267f66cf671b2&text=你好"; //"secret=dcXbXX0X|5c011b2726e0adb52f98d6a57672774314c540a0|f9e79b0d9144b9b47f3072359c0dfa75926a5013&event=GetUK&data=[{\"dev\":\"o4bXDt_oYycyHsaKXOlvY809U\"}]";
+
+    InitReqData(req, UNDSTAND);// 初始化 request 资料
+    req->params = CreateReqParamsStr(params, text, UNDSTAND);// 生成参数字符串
+    if(req->params == NULL)
+    {
+        _error("无法生成参数字符串!\n");
+        return;
+    }
     SendHttpRequest(req, &sockfd, POST);
-    //free(req->params);
-    GetHttpResponse(sockfd);
+    free(req->params);
+    cJSON* json = GetHttpResponse(sockfd);
+    if (!json)
+    {
+        printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+    }
+    else
+    {
+        ShowResponse(json);
+    }
+}
+
+void GetUK(XXZReqParams* params, HttpReq* req)
+{
+    int sockfd;
+
+    InitReqData(req, GET_UK);// 初始化 request 资料
+    req->params = CreateReqParamsStr(params, NULL, GET_UK);// 生成参数字符串
+    SendHttpRequest(req, &sockfd, POST);
+    free(req->params);
+    cJSON* json = GetHttpResponse(sockfd);
+    if (!json)
+    {
+        printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+    }
+    else
+    {
+        //ShowResponse(json);
+//        // 打印json对象
+//        char* out2 = cJSON_Print(json);
+//        printf("%s\n",out2);
+//        free(out2);
+//        cJSON_Delete(json);
+        params->uk = malloc(41);
+        memset(params->uk, 0, 41);
+        memcpy(params->uk, GetJsonValue(json, "uk")->valuestring, 40);
+    }
 }
 
 //int main(int argc, char *argv[])
@@ -476,10 +540,6 @@ int main(int argc, char *argv[])
 
     XXZReqParams params;
     HttpReq req;
-
-    InitReqData(&req);// 初始化 request 资料
     InitReqParams(&params);// 初始化request参数结构
-
-
     console_main(&params, &req);
 }
