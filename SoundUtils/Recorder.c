@@ -228,6 +228,8 @@ extern void Record()
         len = G_sndC.totalRecFramesCount; //录音采样点总数
         err = 0;
         G_sndC.pcmEnd = 0;
+        G_sndC.onPcmBufState[0] = BufState_Empty;
+        G_sndC.onPcmBufState[1] = BufState_Empty;
         rxBufEnd = 0;
         //打开文件
         FILE *fp = fopen("test.wav", "w+");
@@ -295,13 +297,13 @@ extern void Record()
                 G_sndC.pcmEnd += G_sndC.perPeriodBytes;
                 _printf("      写入文件单声道的字节数：%d\n", G_sndC.perPeriodBytes);
             }
-            // 录音时间用完没？
-            if (len <= 0)
-            {
-                _printf("本次录音时间用完，退出录音模式。\n");
-                sysUsecTime();
-                G_sndC.onRecord = 0;
-            }
+//            // 录音时间用完没？
+//            if (len <= 0)
+//            {
+//                _printf("本次录音时间用完，退出录音模式。\n");
+//                sysUsecTime();
+//                G_sndC.onRecord = 0;
+//            }
             //按了暂停键，进入暂停循环
             if (!G_sndC.onRecord)
             {

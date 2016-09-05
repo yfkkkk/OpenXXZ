@@ -26,8 +26,10 @@
 
 #define BUFSIZE 4096
 #define HTTP_RES_HEAD 1024
-#define SERVER_ADDR "server.xiaoxinzi.com"
-#define SERVER_PATH "/tools/phpsample_yf.php?"
+#define SERVER_GET_UK "get.xiaoxinzi.com"
+#define SERVER_GET_UK_PATH "/app_event.php"
+#define SERVER_ADDR "ai.xiaoxinzi.com" //"server.xiaoxinzi.com"
+#define SERVER_PATH "/api3.php" //"/tools/phpsample_yf.php?"
 #define PORT "80"
 
 #define true 1
@@ -39,7 +41,7 @@
 extern struct SoundCtrl G_sndC;
 extern void RecordDeviceInit();
 extern void Record();
-extern int iflyLogin();
+extern int IflyLogin();
 extern void RecognizeVoice_Ifly(char* recgResult);
 
 /**
@@ -343,20 +345,35 @@ void GetHttpResponse(int sockfd)
     }
     /* 打印响应消息 */
     printf("Received Http Response Content: \n\n%s\n", rcvBuf);
+    int i = 0;
+    char* dataP = 0;// 指向资料位置
+    while(rcvBuf[i] != 0)
+    {
+        if(rcvBuf[i] == '\r')
+        {
+            if(!strncasecmp(rcvBuf + i, "\r\n\r\n", 4))
+            {
+                dataP = rcvBuf + i + 4;
+                break;
+            }
+        }
+        i++;
+    }
+
     char *out;cJSON *json;
 
-    json = cJSON_Parse(rcvBuf);
+    json = cJSON_Parse(dataP);
     if (!json)
     {
         printf("Error before: [%s]\n",cJSON_GetErrorPtr());
     }
     else
     {
-        ShowResponse(json);
-//        // 打印json对象
-//        char* out2 = cJSON_Print(jsonTemp);
-//        printf("%s\n",out2);
-//        free(out2);
+        //ShowResponse(json);
+        // 打印json对象
+        char* out2 = cJSON_Print(json);
+        printf("%s\n",out2);
+        free(out2);
         cJSON_Delete(json);
     }
 }
@@ -404,20 +421,54 @@ static void console_main(XXZReqParams* params, HttpReq* req)
 }
 
 /**
- * 文本小信子
- * @param params
- * @param req
- * @param text
+ * 文本小信子, 发送对话请求
+ * @param params 请求参数
+ * @param req 请求
+ * @param text 语句
  */
 void Talk(XXZReqParams* params, HttpReq* req, char* text)
 {
     int sockfd;
-    req->params = CreateReqParamsStr(params, text);// 生成参数字符串
-    SendHttpRequest(req, &sockfd, GET);
-    free(req->params);
+    //req->params = CreateReqParamsStr(params, text);// 生成参数字符串
+    req->params = "app=KF5hzAiS&dev=123312312312&uk=df6f0dbf81c31accfda1f3cc3a1267f66cf671b2&text=你好"; //"secret=dcXbXX0X|5c011b2726e0adb52f98d6a57672774314c540a0|f9e79b0d9144b9b47f3072359c0dfa75926a5013&event=GetUK&data=[{\"dev\":\"o4bXDt_oYycyHsaKXOlvY809U\"}]";
+    SendHttpRequest(req, &sockfd, POST);
+    //free(req->params);
     GetHttpResponse(sockfd);
 }
 
+//int main(int argc, char *argv[])
+//{
+//
+//    char iat_rec_result[4096] = {0};
+//
+//    XXZReqParams params;
+//    HttpReq req;
+//
+//    InitReqData(&req);// 初始化 request 资料
+//    InitReqParams(&params);// 初始化request参数结构
+////
+////
+////    console_main(&params, &req);
+//    G_sndC.onRecord = 1;
+//    RecordDeviceInit();
+//    int thrRes;//创建的线程返回值
+//    thrRes = pthread_create(&G_sndC.recordThread, NULL, Record, "test.wav");
+//    if (thrRes != 0)
+//    {
+//        _error("Thread creation failed!");
+//        exit(EXIT_FAILURE);
+//    }
+//    IflyLogin();// 登陆讯飞
+//    while(1)
+//    {
+//        memset(iat_rec_result, 0, 4096);
+//        RecognizeVoice_Ifly(iat_rec_result);
+//        Talk(&params, &req, iat_rec_result);
+//    }
+//    return EXIT_SUCCESS;
+//}
+
+// 文本测试main函数
 int main(int argc, char *argv[])
 {
 
@@ -428,20 +479,7 @@ int main(int argc, char *argv[])
 
     InitReqData(&req);// 初始化 request 资料
     InitReqParams(&params);// 初始化request参数结构
-//
-//
-//    console_main(&params, &req);
-    G_sndC.onRecord = 1;
-    RecordDeviceInit();
-    int thrRes;//创建的线程返回值
-    thrRes = pthread_create(&G_sndC.recordThread, NULL, Record, "test.wav");
-    if (thrRes != 0)
-    {
-        _error("Thread creation failed!");
-        exit(EXIT_FAILURE);
-    }
-    RecognizeVoice_Ifly(iat_rec_result);
 
-    Talk(&params, &req, iat_rec_result);
-    return EXIT_SUCCESS;
+
+    console_main(&params, &req);
 }

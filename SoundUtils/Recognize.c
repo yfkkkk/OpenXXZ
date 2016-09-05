@@ -24,7 +24,7 @@ int			upload_on = 0; //是否上传用户词表
 const char* session_begin_params = "sub = iat, domain = iat, language = zh_ch, accent = mandarin, sample_rate = 16000, result_type = plain, result_encoding = utf8";
 int ret = MSP_SUCCESS;
 
-int iflyLogin()
+int IflyLogin()
 {
     int ret;
     /* 用户登录 */
@@ -86,7 +86,7 @@ int IfSilence(char* pcmBuf, char meetSpeech)
             {
                 //已经有碰到语音，那么终止录音，开始回答
                 G_sndC.onRecord = 0;//停止录音
-
+                G_sndC.onRecognize = 1;
                 printf("静音过久，终止录音。\n");
             }
             else//前面全部是静音，那么不发送给识别
@@ -117,14 +117,15 @@ extern void RecognizeVoice_Ifly(char* recgResult)
     char meetSpeech = 0;// 标志, 判断是否发送识别时, 确定碰到过语音
 
     sysUsecTime();
-    iflyLogin();
+
     printf("\n开始语音听写 ...\n");
     session_id = QISRSessionBegin(NULL, session_begin_params, &errcode); //听写不需要语法，第一个参数为NULL
     if (MSP_SUCCESS != errcode)
     {
         printf("\nQISRSessionBegin failed! error code:%d\n", errcode);
-        goto iat_exit;
+        return;
     }
+
     int switcher = 0;// 缓存切换用
     while (1)
     {
@@ -136,36 +137,26 @@ extern void RecognizeVoice_Ifly(char* recgResult)
             // 读缓存并处理
             if(IfSilence(G_sndC.pcmBuf[switcher], meetSpeech))// 是否静音
             {
+                // 静音
                 G_sndC.onPcmBufState[switcher] = BufState_Empty;// 读完，置空标志
                 break;
-            } else
-            {
-                printf("发送识别!\n");
-                ret = QISRAudioWrite(session_id, G_sndC.pcmBuf[switcher], G_sndC.pcmBufSize, aud_stat, &ep_stat,
-                                     &rec_stat);
-                if (MSP_SUCCESS != ret)
-                {
-                    printf("\nQISRAudioWrite failed! error code:%d\n", ret);
-                    goto iat_exit;
-                }
-                if (MSP_EP_AFTER_SPEECH == ep_stat)
-                    break;
-                ////////////////////////////////////////////
-                G_sndC.onPcmBufState[switcher] = BufState_Empty;// 读完，置空标志
-                switcher = !switcher;
-                _printf("————切换到缓存%d\n", switcher);
-//                t++;
-//                if (t >= 3)
-//                {
-//                    _printf("————要终止录音了！\n");
-//                    G_sndC.onRecord = 0;
-//                    //G_sndC.onKillAllThread = 1;
-//                    break;
-//                } else
-//                {
-//                    _printf("————  次数：%d\n", t);
-//                }
             }
+            // 非静音
+            printf("发送识别!\n");
+            ret = QISRAudioWrite(session_id, G_sndC.pcmBuf[switcher], G_sndC.pcmBufSize, aud_stat, &ep_stat,
+                                 &rec_stat);
+            if (MSP_SUCCESS != ret)
+            {
+                printf("\nQISRAudioWrite failed! error code:%d\n", ret);
+                goto iat_exit;
+            }
+            if (MSP_EP_AFTER_SPEECH == ep_stat)
+                break;
+            ////////////////////////////////////////////
+            G_sndC.onPcmBufState[switcher] = BufState_Empty;// 读完，置空标志
+            switcher = !switcher;
+            _printf("————切换到缓存%d\n", switcher);
+
         } else
         {
             _printf("————暂停%d\n", switcher);
@@ -209,6 +200,9 @@ extern void RecognizeVoice_Ifly(char* recgResult)
     printf("=============================================================\n");
     sysUsecTime();
     iat_exit:
+    G_sndC.onRecognize = 0;// 结束识别状态
+    G_sndC.onPcmBufState[0] = BufState_Empty;
+    G_sndC.onPcmBufState[1] = BufState_Empty;
+    QISRSessionEnd(session_id, hints);
     return;
-
 }

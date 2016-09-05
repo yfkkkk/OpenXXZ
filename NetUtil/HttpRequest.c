@@ -102,43 +102,93 @@ int tcp_connect(const char* host, const char* serv)
     freeaddrinfo(ressave);
     return (sockfd);
 }
+int tuobao_tcpclient_recv(int sockfd, char **lpbuff,int size)
+{
+    int recvnum = 0, tmpres = 0;
+    char buff[4096];
 
+    *lpbuff = NULL;
+
+    while (recvnum < size || size == 0)
+    {
+        tmpres = recv(sockfd, buff, 4096, 0);
+        if (tmpres <= 0)
+            break;
+        recvnum += tmpres;
+
+        if (*lpbuff == NULL)
+        {
+            *lpbuff = (char *) malloc(recvnum);
+            if (*lpbuff == NULL)
+                return -2;
+        } else
+        {
+            *lpbuff = (char *) realloc(*lpbuff, recvnum);
+            if (*lpbuff == NULL)
+                return -2;
+        }
+
+        memcpy(*lpbuff + recvnum - tmpres, buff, tmpres);
+    }
+
+    return recvnum;
+}
 int SendHttpRequest(struct HttpReq* httpReqInfo, int* sockfd, enum HttpReqMode mode)
 {
     int ret;
     unsigned char str1[4096];
-    fd_set   t_set1;
+    fd_set t_set1;
 
     *sockfd = tcp_connect(httpReqInfo->srvAddr, httpReqInfo->srvPort);
 
     //发送数据
     memset(str1, 0, 4096);
-    if(mode == POST)
-        strcat(str1, "POST  http://");
-    else
-        strcat(str1, "GET  http://");
-    strcat(str1, httpReqInfo->srvAddr);
-    strcat(str1, httpReqInfo->srvPath);
-    strcat(str1, httpReqInfo->params);
+    if (mode == POST)
+    {
+        strcat(str1, "POST ");
+        //strcat(str1, "/api3.php");
+        //strcat(str1, httpReqInfo->srvAddr);
+        strcat(str1, httpReqInfo->srvPath);
+    } else
+    {
+        strcat(str1, "GET ");
+        //strcat(str1, httpReqInfo->srvAddr);
+        strcat(str1, httpReqInfo->srvPath);
+        strcat(str1, httpReqInfo->params);
+    }
 //    if(httpReqInfo->sig != NULL)
 //    {
 //        strcat(str1, "&sig=");
 //        strcat(str1, httpReqInfo->sig);
 //    }
-    strcat(str1, "\r\nHTTP/1.1\r\n");
-    strcat(str1, "Host: ");
+    strcat(str1, " HTTP/1.0\r\n");
+    strcat(str1, "HOST: ");
     strcat(str1, httpReqInfo->srvAddr);
     strcat(str1, "\r\nUser-Agent: Wget\r\n");
     strcat(str1, "Content-Type: application/x-www-form-urlencoded;charset=utf-8\r\n");
-    if(httpReqInfo->gzip == 1)//response有gzip加密
-        strcat(str1, "Accept-Encoding: gzip, deflate, sdch\r\n");
-    strcat(str1, "\r\n");
+    if (httpReqInfo->gzip == 1)//response有gzip加密
+        strcat(str1, "Accept-Encoding: gzip, deflate, sdch");
+    if (mode == POST)
+    {
+        char lenStr[128] = {0};
+        int len = strlen(httpReqInfo->params);
+        sprintf(lenStr, "%d", len);
+        //strcat(str1, "Connection: Keep-Alive\r\n");
+        strcat(str1, "Content-Length: ");
+        strcat(str1, lenStr);
+        strcat(str1, "\r\n\r\n");
 
-//    printf("%s\n", str1);
+        strcat(str1, httpReqInfo->params);
+    } else
+    {
+        strcat(str1, "\r\n\r\n");
+    }
+    printf("%s\n", str1);
 
     ret = write(*sockfd, str1, strlen(str1));
-    if (ret < 0) {
-        printf("发送失败！错误代码是%d，错误信息是'%d'\n",errno, errno);//strerror(errno));
+    if (ret < 0)
+    {
+        printf("发送失败！错误代码是%d，错误信息是'%d'\n", errno, errno);//strerror(errno));
         exit(0);
     }
 //    else
@@ -146,6 +196,14 @@ int SendHttpRequest(struct HttpReq* httpReqInfo, int* sockfd, enum HttpReqMode m
 
     FD_ZERO(&t_set1);
     FD_SET(*sockfd, &t_set1);
+
+//    char *lpbuf = NULL;
+//    if (tuobao_tcpclient_recv(*sockfd, &lpbuf, 0) <= 0)
+//    {
+//        if (lpbuf) free(lpbuf);
+//        return -2;
+//    }
+//    printf("接收響應:\n%s\n", lpbuf);
 }
 
 char* http_trans_buf_has_patt(char *a_buf, int a_len, char *a_pat, int a_patlen) {
