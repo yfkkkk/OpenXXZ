@@ -536,7 +536,6 @@ void GetUK(XXZReqParams* params, HttpReq* req)
 // 文本测试main函数
 int main(int argc, char *argv[])
 {
-
     char iat_rec_result[4096] = {0};
 
     XXZReqParams params;
