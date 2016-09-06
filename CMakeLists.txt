@@ -55,7 +55,7 @@ set(OpenXXZ_SOURCE_FILES
         NetUtil/HttpRequest.c
         CJSON/cJSON.c
         SoundUtils/Recorder.c SoundUtils/SoundUtils.h Debug/Debug.h Utils/TimeUtils.c SoundUtils/Recognize.c)
-add_executable(OpenXXZ ${OpenXXZ_SOURCE_FILES})
+add_executable(OpenXXZAPP ${OpenXXZ_SOURCE_FILES})
 
 ### 测试
 #set(TCPTest_SOURCE_FILES

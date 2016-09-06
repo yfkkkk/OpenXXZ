@@ -474,6 +474,11 @@ void Talk(XXZReqParams* params, HttpReq* req, char* text)
     }
 }
 
+/**
+ * 获取uk
+ * @param params 访问小信子api需要的各参数
+ * @param req req需要的参数
+ */
 void GetUK(XXZReqParams* params, HttpReq* req)
 {
     int sockfd;
@@ -489,12 +494,6 @@ void GetUK(XXZReqParams* params, HttpReq* req)
     }
     else
     {
-        //ShowResponse(json);
-//        // 打印json对象
-//        char* out2 = cJSON_Print(json);
-//        printf("%s\n",out2);
-//        free(out2);
-//        cJSON_Delete(json);
         params->uk = malloc(41);
         memset(params->uk, 0, 41);
         memcpy(params->uk, GetJsonValue(json, "uk")->valuestring, 40);
