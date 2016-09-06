@@ -9,7 +9,7 @@
   本工程使用Cmake构建。
       推荐使用Clion集成编译环境，git clone并直接打开源码根目录即可编译。
       或者1. sudo apt install cmake
-      2.到源码根目录运行cmake
+      2.到源码根目录运行cmake .
       3.运行make
   ```
   > CMakeLists.txt配置，此处根据自己的工具链位置修改：
