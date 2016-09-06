@@ -406,6 +406,7 @@ static void menu(void)
     puts("|                                    |                                |");
 //    printf("| State     : %-12s           | Address: %-21s |\n",
 //           showStr, showStr);
+    puts("| 注意: 请先用u命令取得uk, 再进行对话   |                                |");
     puts("| 功能:                              |                                |");
     puts("| Send Message                       |                                |");
     puts("|    例:> 你好.                      |                                |");
