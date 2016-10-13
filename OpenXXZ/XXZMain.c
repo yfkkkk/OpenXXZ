@@ -391,7 +391,11 @@ cJSON* GetHttpResponse(int sockfd)
         }
         i++;
     }
-
+    //printf("data for json: \n\n%s\n", dataP);
+    while(*dataP < 33)//不可见字符全跳过
+    {
+        dataP += 1;
+    }
     char *out;cJSON *json;
 
     json = cJSON_Parse(dataP);
@@ -500,45 +504,47 @@ void GetUK(XXZReqParams* params, HttpReq* req)
     }
 }
 
-//int main(int argc, char *argv[])
-//{
-//
-//    char iat_rec_result[4096] = {0};
-//
-//    XXZReqParams params;
-//    HttpReq req;
-//
-//    InitReqData(&req);// 初始化 request 资料
-//    InitReqParams(&params);// 初始化request参数结构
-////
-////
-////    console_main(&params, &req);
-//    G_sndC.onRecord = 1;
-//    RecordDeviceInit();
-//    int thrRes;//创建的线程返回值
-//    thrRes = pthread_create(&G_sndC.recordThread, NULL, Record, "test.wav");
-//    if (thrRes != 0)
-//    {
-//        _error("Thread creation failed!");
-//        exit(EXIT_FAILURE);
-//    }
-//    IflyLogin();// 登陆讯飞
-//    while(1)
-//    {
-//        memset(iat_rec_result, 0, 4096);
-//        RecognizeVoice_Ifly(iat_rec_result);
-//        Talk(&params, &req, iat_rec_result);
-//    }
-//    return EXIT_SUCCESS;
-//}
-
-// 文本测试main函数
 int main(int argc, char *argv[])
 {
+    printf("你好\n");
     char iat_rec_result[4096] = {0};
 
     XXZReqParams params;
     HttpReq req;
+    //GetUK(&params, &req);
+    InitReqData(&req, UNDSTAND);
+    printf("1\n");
     InitReqParams(&params);// 初始化request参数结构
-    console_main(&params, &req);
+    printf("2\n");
+//
+//
+//    console_main(&params, &req);
+    G_sndC.onRecord = 1;
+    RecordDeviceInit();
+    int thrRes;//创建的线程返回值
+    thrRes = pthread_create(&G_sndC.recordThread, NULL, Record, "test.wav");
+    if (thrRes != 0)
+    {
+        _error("Thread creation failed!");
+        exit(EXIT_FAILURE);
+    }
+    IflyLogin();// 登陆讯飞
+    while(1)
+    {
+        memset(iat_rec_result, 0, 4096);
+        RecognizeVoice_Ifly(iat_rec_result);
+        Talk(&params, &req, iat_rec_result);
+    }
+    return EXIT_SUCCESS;
 }
+
+//// 文本测试main函数
+//int main(int argc, char *argv[])
+//{
+//    char iat_rec_result[4096] = {0};
+//
+//    XXZReqParams params;
+//    HttpReq req;
+//    InitReqParams(&params);// 初始化request参数结构
+//    console_main(&params, &req);
+//}
